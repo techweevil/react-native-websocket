@@ -1,22 +1,13 @@
-import { NativeModules, Platform } from 'react-native';
+import Websocket from './Websocket';
 
-const LINKING_ERROR =
-  `The package 'react-native-websocket' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
+export async function wake(): Promise<string> {
+  return Websocket.wake();
+}
 
-const Websocket = NativeModules.Websocket
-  ? NativeModules.Websocket
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
+export async function sleep(): Promise<string> {
+  return Websocket.sleep();
+}
 
-export function multiply(a: number, b: number): Promise<number> {
+export async function multiply(a: number, b: number): Promise<number> {
   return Websocket.multiply(a, b);
 }
