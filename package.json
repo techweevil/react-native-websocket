@@ -1,5 +1,5 @@
 {
-  "name": "react-native-websocket",
+  "name": "@moses-20/react-native-websocket",
   "version": "0.1.0",
   "description": "...",
   "main": "lib/commonjs/index",
@@ -47,7 +47,7 @@
   },
   "homepage": "https://github.com/moses-20/react-native-websocket#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://npm.pkg.github.com"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.0.2",
