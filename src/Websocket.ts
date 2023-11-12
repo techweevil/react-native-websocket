@@ -18,7 +18,6 @@ const Websocket = NativeModules.Websocket
     );
 
 interface WebsocketInterface {
-  multiply(a: number, b: number): Promise<number>;
   wake(): Promise<string>;
   sleep(): Promise<string>;
 }

@@ -1,15 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import { StyleSheet, View, Text, Button, Alert } from 'react-native';
-import { multiply, wake, sleep } from 'react-native-websocket';
+import { StyleSheet, View, Button, Alert } from 'react-native';
+import { wake, sleep } from 'react-native-websocket';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
-
-  useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
-
   const handleWake = async () => {
     const msg = await wake();
 
@@ -24,7 +18,6 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
       <Button title="Wake Up" onPress={handleWake} />
       <Button title="Sleep" onPress={handleSleep} />
     </View>
