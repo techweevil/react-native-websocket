@@ -1,16 +1,19 @@
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
-  def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["Websocket_kotlinVersion"]
+  def kotlin_version = "1.9.20"
 
   repositories {
     google()
     mavenCentral()
   }
 
+
   dependencies {
+
     classpath "com.android.tools.build:gradle:7.2.1"
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
   }
 }
 
@@ -20,6 +23,7 @@ def isNewArchitectureEnabled() {
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
+apply plugin: 'kotlinx-serialization'
 
 if (isNewArchitectureEnabled()) {
   apply plugin: "com.facebook.react"
@@ -72,8 +76,12 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
+  }
+
+  kotlinOptions {
+    jvmTarget = '11'
   }
 }
 
@@ -84,6 +92,7 @@ repositories {
 
 def kotlin_version = getExtOrDefault("kotlinVersion")
 def ktor_version = getExtOrDefault("ktorVersion")
+def serialization_version = "1.6.0"
 
 dependencies {
   // For < 0.71, this will be from the local maven repo
@@ -94,5 +103,7 @@ dependencies {
   implementation("io.ktor:ktor-server-core:$ktor_version")
   implementation("io.ktor:ktor-server-cio:$ktor_version")
   implementation("io.ktor:ktor-server-websockets:$ktor_version")
+  implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+  implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
+  implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version"
 }
-
