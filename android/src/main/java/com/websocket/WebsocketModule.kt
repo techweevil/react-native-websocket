@@ -1,5 +1,6 @@
 package com.websocket
 
+import android.content.Context
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -11,7 +12,7 @@ import io.ktor.server.application.install
 import io.ktor.server.application.port
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.response.respondText
+import io.ktor.server.response.*
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
@@ -23,14 +24,37 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
 import java.time.Duration
+import android.provider.Settings.Secure
+import io.ktor.server.response.respond
+import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import io.ktor.http.*
 
-fun Application.module(){
+fun Application.module(context: Context){
+  @Serializable
+  data class Device(val deviceID: String)
+  val devices = mutableListOf<Device>()
+
+  fun getDeviceId(): String{
+    return Secure.getString(context.contentResolver, Secure.ANDROID_ID)
+  }
+
 
   install(WebSockets) {
     pingPeriod = Duration.ofSeconds(15)
     timeout = Duration.ofSeconds(15)
     maxFrameSize = Long.MAX_VALUE
     masking = false
+  }
+
+  install(ContentNegotiation) {
+    json(Json {
+      prettyPrint = true
+      isLenient = true
+    })
   }
 
   routing {
@@ -40,6 +64,20 @@ fun Application.module(){
 
     get("/hi") {
       call.respondText("Hello ${call.request.queryParameters["name"]}")
+    }
+
+    get("/get") {
+      try {
+        val deviceId = getDeviceId()
+        devices.add(Device(deviceID = deviceId))
+        call.respond(Device(deviceID = deviceId))
+      } catch (e: Exception) {
+        // Log the exception for debugging purposes
+        e.printStackTrace()
+
+        // Respond with a 500 Internal Server Error and a descriptive error message
+        call.respondText("Internal Server Error: ${e.message}", status = HttpStatusCode.InternalServerError)
+      }
     }
 
     webSocket("/echo") {
@@ -60,7 +98,9 @@ fun Application.module(){
 class WebsocketModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
 
-  private val socketServer = embeddedServer(CIO, host = "0.0.0.0", port = 8080, module = Application::module)
+//  private val socketServer = embeddedServer(CIO, host = "0.0.0.0", port = 8080, module = Application::module(context))
+  private val socketServer = embeddedServer(CIO, host = "0.0.0.0", port = 8080, module = { module(reactContext.baseContext) })
+
 
   override fun getName(): String {
     return NAME
